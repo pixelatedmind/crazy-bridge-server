@@ -2,6 +2,12 @@
 
 Backend server for the Crazy Bridge multiplayer card game.
 
+## Live Deployment
+
+- **Server URL**: `https://crazy-bridge-server.onrender.com`
+- **Frontend URL**: `https://idyllic-pegasus-2e83e0.netlify.app`
+- **Health Check**: `https://crazy-bridge-server.onrender.com/health`
+
 ## Features
 
 - **Real-time Multiplayer**: Socket.IO for instant game updates
@@ -54,6 +60,7 @@ Get all active rooms and statistics (for debugging).
 
 - `PORT` - Server port (default: 3001)
 - `NODE_ENV` - Environment (production/development)
+- `FRONTEND_URL` - Frontend application URL for CORS
 
 ## Deployment
 
@@ -65,6 +72,7 @@ This server is designed to be deployed on Render.com using the included `render.
 2. Connect your GitHub repo to Render
 3. Render will automatically detect the `render.yaml` file
 4. The server will be deployed with the free tier
+5. Set environment variables in Render dashboard if needed
 
 ### Local Development
 
@@ -74,6 +82,16 @@ npm run dev
 ```
 
 The server will start on port 3001 with auto-reload enabled.
+
+### Testing the Deployment
+
+```bash
+# Test health endpoint
+curl https://crazy-bridge-server.onrender.com/health
+
+# Test room creation (requires Socket.IO client)
+# Use the frontend application to test full functionality
+```
 
 ## Rate Limiting
 

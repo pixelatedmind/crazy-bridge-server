@@ -9,7 +9,11 @@ const server = http.createServer(app);
 // Configure CORS for Socket.IO
 const io = socketIo(server, {
   cors: {
-    origin: "*",
+    origin: [
+      "https://idyllic-pegasus-2e83e0.netlify.app",
+      "http://localhost:5173",
+      "http://localhost:3000"
+    ],
     methods: ["GET", "POST"],
     credentials: true
   },
@@ -286,9 +290,13 @@ io.on('connection', (socket) => {
 
     const roomCode = playerRooms[socket.id];
     if (roomCode) {
-      socket.to(roomCode).emit('gameMessage', {
+      // Add fromPlayerId for compatibility with frontend
+      const enhancedMessage = {
         ...message,
         fromPlayerId: socket.id
+      };
+      socket.to(roomCode).emit('gameMessage', {
+        ...enhancedMessage
       });
     }
   });
@@ -358,7 +366,9 @@ app.get('/health', (req, res) => {
     rooms: Object.keys(rooms).length,
     totalPlayers: Object.keys(playerRooms).length,
     connectedSockets: io.engine.clientsCount,
-    uptime: Math.floor(process.uptime())
+    uptime: Math.floor(process.uptime()),
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -401,6 +411,8 @@ const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log('🚀 Server running on port', PORT);
   console.log('🌐 CORS enabled for all origins');
+  console.log('🔗 Frontend URL:', process.env.FRONTEND_URL || 'Not specified');
+  console.log('📊 Environment:', process.env.NODE_ENV || 'development');
   
   // Log server stats every 5 minutes instead of 30 seconds
   setInterval(() => {

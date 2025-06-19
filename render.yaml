@@ -13,3 +13,5 @@ services:
           type: web
           name: crazy-bridge-server
           property: port
+      - key: FRONTEND_URL
+        value: https://idyllic-pegasus-2e83e0.netlify.app
