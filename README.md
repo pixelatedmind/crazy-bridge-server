@@ -1,159 +1,106 @@
-# Crazy Bridge Card Game
+# Crazy Bridge Server
 
-A modern, multiplayer implementation of the Crazy Bridge card game built with React, TypeScript, and Socket.IO.
+Backend server for the Crazy Bridge multiplayer card game.
 
 ## Features
 
-- **Multiplayer Support**: Play with friends online using room codes
-- **Offline Mode**: Play against AI opponents with different personalities
-- **Responsive Design**: Optimized for both desktop and mobile devices
-- **Real-time Gameplay**: Live updates and synchronization across all players
-- **Multiple Game Lengths**: Choose from short (7 cards), standard (10 cards), or long (12 cards) games
-- **Bilingual Support**: Available in English and Portuguese
-- **Custom Card Ranking**: Unique ranking system (A, 7, K, Q, J, 10, 9, 8, 6, 5, 4, 3, 2)
+- **Real-time Multiplayer**: Socket.IO for instant game updates
+- **Room Management**: Create and join game rooms with 4-letter codes
+- **Rate Limiting**: Protection against spam and abuse
+- **Health Monitoring**: Built-in health check endpoints
+- **CORS Enabled**: Works with any frontend domain
 
-## How to Play
+## API Endpoints
 
-1. **Bidding Phase**: Predict how many tricks you'll win in each round
-2. **Playing Phase**: Play cards following suit when possible
-3. **Scoring**: Score 10 + actual wins only if your prediction is exact
-4. **Trump Suit**: Changes each round and beats all other suits
-
-## Tech Stack
-
-- **Frontend**: React 18, TypeScript, Tailwind CSS
-- **Backend**: Node.js, Express, Socket.IO
-- **Icons**: Lucide React
-- **Build Tool**: Vite
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 16.0.0 or higher
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone <your-repo-url>
-cd crazy-bridge-game
+### Health Check
 ```
-
-2. Install dependencies:
-```bash
-npm install
+GET /health
 ```
+Returns server status, uptime, and connection statistics.
 
-3. Start the development server:
-```bash
-npm run dev
+### Room Information
 ```
-
-4. Start the multiplayer server (in a separate terminal):
-```bash
-npm run server
+GET /rooms/:roomCode
 ```
+Get information about a specific room.
 
-### Available Scripts
-
-- `npm run dev` - Start the frontend development server
-- `npm run build` - Build the frontend for production
-- `npm run preview` - Preview the production build
-- `npm run server` - Start the multiplayer server
-- `npm run server:dev` - Start the server with auto-reload
-
-## Game Rules
-
-### Bidding
-- Each player predicts how many tricks they'll win
-- Bidding starts with the player after the dealer
-- Players must bid between 0 and the number of cards dealt
-
-### Playing
-- First player after dealer leads the first trick
-- Players must follow suit if possible
-- Trump cards beat all other suits
-- Highest card of the lead suit wins (if no trump played)
-
-### Scoring
-- Exact prediction: 10 + number of tricks won
-- Wrong prediction: 0 points
-- Game ends after all rounds in the sequence
-
-### Card Ranking (Highest to Lowest)
-1. Ace
-2. 7
-3. King
-4. Queen
-5. Jack
-6. 10, 9, 8, 6, 5, 4, 3, 2
-
-## Multiplayer Setup
-
-### Hosting a Game
-1. Enter your name
-2. Click "Host Multiplayer Game"
-3. Share the 4-letter room code with friends
-4. Wait for players to join
-5. Start the game when ready
-
-### Joining a Game
-1. Enter your name
-2. Click "Join Multiplayer Game"
-3. Enter the room code provided by the host
-4. Wait for the host to start the game
-
-## Development
-
-### Project Structure
+### Debug Information
 ```
-src/
-├── components/          # React components
-├── hooks/              # Custom React hooks
-├── services/           # API and multiplayer services
-├── types/              # TypeScript type definitions
-├── utils/              # Utility functions
-└── App.tsx             # Main application component
+GET /debug/rooms
 ```
+Get all active rooms and statistics (for debugging).
 
-### Key Components
-- `MultiplayerSetup` - Game mode selection and room management
-- `GameSetup` - Offline game configuration
-- `GameContainer` - Main game interface
-- `BiddingModal` - Full-screen bidding interface
-- `PlayingField` - Card playing area
-- `PlayerHand` - Player's cards display
+## Socket.IO Events
+
+### Client to Server
+- `createRoom` - Create a new game room
+- `joinRoom` - Join an existing room
+- `leaveRoom` - Leave current room
+- `startGame` - Start the game (host only)
+- `gameMessage` - Send game action to other players
+- `ping` - Heartbeat ping
+
+### Server to Client
+- `roomCreated` - Room successfully created
+- `roomJoined` - Successfully joined room
+- `playerJoined` - Another player joined
+- `playerLeft` - Player left the room
+- `gameStarted` - Game has started
+- `gameMessage` - Game action from another player
+- `error` - Error message
+- `pong` - Heartbeat response
+
+## Environment Variables
+
+- `PORT` - Server port (default: 3001)
+- `NODE_ENV` - Environment (production/development)
 
 ## Deployment
 
-### Frontend (Netlify)
-The frontend can be deployed to Netlify:
+This server is designed to be deployed on Render.com using the included `render.yaml` configuration.
+
+### Deploy to Render
+
+1. Push this repository to GitHub
+2. Connect your GitHub repo to Render
+3. Render will automatically detect the `render.yaml` file
+4. The server will be deployed with the free tier
+
+### Local Development
+
 ```bash
-npm run build
-# Deploy the dist/ folder to Netlify
+npm install
+npm run dev
 ```
 
-### Backend (Render/Heroku)
-The backend server can be deployed to any Node.js hosting service:
-- Set `PORT` environment variable
-- Ensure CORS is configured for your frontend domain
+The server will start on port 3001 with auto-reload enabled.
 
-## Contributing
+## Rate Limiting
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+- 30 requests per minute per socket connection
+- Automatic cleanup of old rate limit entries
+- Silent rate limiting for game messages to prevent disruption
 
-## License
+## Room Management
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+- Rooms are automatically created with unique 4-letter codes
+- Maximum 8 players per room
+- Rooms are automatically deleted when empty
+- Host privileges transfer automatically if host leaves
 
-## Acknowledgments
+## Security Features
 
-- Built with modern web technologies
-- Inspired by the classic Crazy Bridge card game
-- Designed for both casual and competitive play
+- Input sanitization for all user data
+- Rate limiting to prevent abuse
+- CORS configuration for cross-origin requests
+- Automatic cleanup of disconnected players
+
+## Monitoring
+
+The server includes built-in monitoring:
+- Active room count
+- Connected player count
+- Server uptime
+- Memory usage statistics
+
+Access monitoring data via the `/health` endpoint.
